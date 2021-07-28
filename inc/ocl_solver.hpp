@@ -620,7 +620,7 @@ namespace sibernetic {
 				if (err != CL_SUCCESS) {
 					std::string k_name;
 					ker.getInfo(CL_KERNEL_FUNCTION_NAME, &k_name);
-					throw ocl_error(make_msg("Kernel", k_name, "finish its work with ERROR -", err));
+					throw ocl_error(make_msg("Kernel finish its work with errror", err, "kernel name",k_name));
 				}
 				return err;
 			}

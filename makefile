@@ -1,4 +1,4 @@
-CC = g++ -std=c++14 -Wall -pedantic -pthread
+CC = g++ -std=c++11 -Wall -pedantic -pthread
 TARGET:=siberneic
 TEST_TARGET:=stest
 RM := rm -rf
