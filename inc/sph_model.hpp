@@ -287,7 +287,7 @@ namespace sibernetic {
                 size_t start = 0;
                 size_t end = 1;
                 for (size_t i = 0; i < dev_count; ++i) {
-		    part_size = static_cast<size_t>(particles.size() * balance_coeff[i]);
+		    		part_size = static_cast<size_t>(particles.size() * balance_coeff[i]);
                     if (i == dev_count - 1)
                         update_partition(start, static_cast<size_t>(size() - 1), i);
                     else {
@@ -331,12 +331,12 @@ namespace sibernetic {
                 partitions[p_id].end_ghost_cell_id = p.end_ghost_cell_id;
             }
 
-            partition prepare_partition(size_t start, size_t end) {
+            partition prepare_partition(int start, int end) {
                 auto start_cell_id = particles[start].cell_id;
                 auto end_cell_id = particles[end].cell_id;
                 auto ghost_end = end;
                 auto ghost_start = start;
-                size_t start_ghost_cell_id = 0, end_ghost_cell_id = end_cell_id;
+                int start_ghost_cell_id = 0, end_ghost_cell_id = end_cell_id;
                 if (start_cell_id != 0) {
                     start_ghost_cell_id = start_cell_id - cell_num_y * cell_num_z;
                     if (start_ghost_cell_id < 1) {

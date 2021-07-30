@@ -685,8 +685,8 @@ __kernel void k_compute_density(
 	float mass_mult_Wpoly6Coefficient,
 	float hScaled2,
 	int PARTICLE_COUNT,
-	ulong OFFSET,
-	ulong LIMIT
+	int OFFSET,
+	int LIMIT
 )
 {
 	int id = get_global_id( 0 );

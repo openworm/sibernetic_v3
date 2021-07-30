@@ -87,7 +87,8 @@ namespace sibernetic {
 					model_ptr &m,
 					shared_ptr<device> d,
 					size_t idx,
-					LOGGING_MODE log_mode = LOGGING_MODE::NO):
+					LOGGING_MODE log_mode = LOGGING_MODE::NO
+			):
 				model(m),
 				dev(std::move(d)),
 				device_index(idx),
@@ -151,25 +152,25 @@ namespace sibernetic {
 
 			void neighbour_search() override {
 				run_init_ext_particles();
-				// run_hash_particles();
-				// sync();
-				// run_clear_grid_hash();
-				// run_fill_particle_cell_hash();
-				// run_neighbour_search();
+				run_hash_particles();
+				sync();
+				run_clear_grid_hash();
+				run_fill_particle_cell_hash();
+				run_neighbour_search();
 			}
 
 			void physic() override {
-				// int iter = 0;
-				// run_compute_density();
-				// run_compute_forces_init_pressure();
-				// while(iter < sibernetic::model::PCI_ITER_COUNT) {
-				// 	run_predict_positions();
-				// 	run_predict_density();
-				// 	run_correct_pressure();
-				// 	run_compute_pressure_force_acceleration();
-				// 	++iter;
-				// }
-				// run_integrate();
+				int iter = 0;
+				run_compute_density();
+				run_compute_forces_init_pressure();
+				while(iter < sibernetic::model::PCI_ITER_COUNT) {
+					run_predict_positions();
+					run_predict_density();
+					run_correct_pressure();
+					run_compute_pressure_force_acceleration();
+					++iter;
+				}
+				run_integrate();
 			}
 
 			void sync() override {
@@ -372,7 +373,7 @@ namespace sibernetic {
 
 			int run_init_ext_particles() {
 				if(log_mode == LOGGING_MODE::FULL)
-					std::cout << "run init_ext_particles --> " << dev->name << std::endl;
+					std::cout << "run init_ext_particles --> }{UY " << log_mode << LOGGING_MODE::FULL << LOGGING_MODE::NO << dev->name << std::endl;
 				this->kernel_runner(
 						this->k_init_ext_particles,
 						p->total_size(),

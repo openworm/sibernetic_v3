@@ -25,12 +25,12 @@ namespace sibernetic{
             int end_ghost_cell_id;
             int size() const {
             	if(start == 0)
-            	    return end - start;
+            	    return end - start + 1;
 	            return end - start + 1;
             }
             int total_size() const {
 	            if(ghost_start == 0)
-		            return (ghost_end - ghost_start);
+		            return (ghost_end - ghost_start + 1);
             	return (ghost_end - ghost_start + 1);
             }
             int cell_count() const { return end_cell_id - start_cell_id + 1; }

@@ -1,5 +1,5 @@
-CC = g++ -std=c++11 -Wall -pedantic -pthread
-TARGET:=siberneic
+CC = g++ -std=c++11 -Wall -pedantic -pthread -enable-pretty-printing
+TARGET:=sibernetic
 TEST_TARGET:=stest
 RM := rm -rf
 TEST := test
