@@ -41,7 +41,6 @@ class arg_parser {
 public:
   arg_parser(int argc, char **argv);
   bool check_arg(const std::string &arg) const;
-  const std::string &get_arg(const std::string &arg) const;
   const std::string get_arg_value(const std::string &arg) const;
   static int show_usage() {
     std::string version = "0.0.1";

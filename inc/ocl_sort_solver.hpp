@@ -267,7 +267,7 @@ namespace sibernetic {
 			int run_init_index_array() {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run init index buffer --> " << dev->name << std::endl;
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_fill_index_array,
                         model->size(),
 						0,
@@ -323,6 +323,7 @@ namespace sibernetic {
 //                    }
 				}
 				shuffle_particles(need_swap);
+				return 0;
 			}
 			void shuffle_particles(bool need_swap){
                 if(need_swap){

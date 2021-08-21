@@ -10,6 +10,7 @@
 template<class T> class abstract_reader{
 public:
     virtual void serialize(const std::string &, sibernetic::model::particle_model<T> * ) = 0;
+    virtual ~abstract_reader() = default;
 };
 
 #endif //SIBERNETIC_ABSTARACT_READER_H

@@ -131,7 +131,6 @@ namespace sibernetic {
 			                total_compute_power += s->get_device()->max_thread_count;
 			        }
 			    );
-                float prev = 0.f;
                 float rest = 1.f;
 			    for(int i=0; i < _solvers.size(); ++i){
                     float cur;

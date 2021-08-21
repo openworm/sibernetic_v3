@@ -44,14 +44,6 @@ bool arg_parser::check_arg(const std::string &arg) const {
   return arguments.find(arg.substr(0,arg.find('='))) != arguments.end();
 }
 
-const std::string &arg_parser::get_arg(const std::string &arg) const {
-  auto key = arg.substr(0, arg.find('='));
-  auto itr = arguments.find(key);
-  if (itr != arguments.end())
-    return arguments.at(key);
-  return std::string("");
-}
-
 const std::string arg_parser::get_arg_value(const std::string &arg) const {
 	auto itr = arguments.find(arg);
 	if (itr != arguments.end()) {

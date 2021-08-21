@@ -85,8 +85,8 @@ namespace sibernetic {
 					size_t idx,
 					LOGGING_MODE log_mode = LOGGING_MODE::NO):
 				model(m),
+                device_index(idx),
 				dev(d),
-				device_index(idx),
 				log_mode(log_mode)
 			{
                 auto tmp = WG_SIZE * N_GROUPS;
@@ -303,7 +303,7 @@ namespace sibernetic {
                 static size_t dim_round_up = (((size - 1) / WG_SIZE) + 1) * WG_SIZE;
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run init index buffer --> " << dev->name << std::endl;
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->prepare,
                         dim_round_up,
                         WG_SIZE,
@@ -322,7 +322,7 @@ namespace sibernetic {
                 static size_t count_local_work_size = WG_SIZE;
                 if(log_mode == LOGGING_MODE::FULL)
                     std::cout << "run count kernel --> " << dev->name << std::endl;
-                this->kernel_runner(
+                return this->kernel_runner(
                         this->count,
                         count_global_work_size,
                         count_local_work_size,
@@ -342,7 +342,7 @@ namespace sibernetic {
                 static size_t scan_local_work_size = scan_global_work_size / N_GROUPS;
                 if(log_mode == LOGGING_MODE::FULL)
                     std::cout << "run scan kernel --> " << dev->name << std::endl;
-                this->kernel_runner(
+                return this->kernel_runner(
                         this->scan,
                         scan_global_work_size,
                         scan_local_work_size,
@@ -360,7 +360,7 @@ namespace sibernetic {
                 static size_t blocksum_local_work_size =  N_GROUPS / 2;
                 if(log_mode == LOGGING_MODE::FULL)
                     std::cout << "run blocksum kernel --> " << dev->name << std::endl;
-                this->kernel_runner(
+                return this->kernel_runner(
                         this->blocksum,
                         blocksum_global_work_size,
                         blocksum_local_work_size,
@@ -380,7 +380,7 @@ namespace sibernetic {
 
                 if(log_mode == LOGGING_MODE::FULL)
                     std::cout << "run coalesce kernel --> " << dev->name << std::endl;
-                this->kernel_runner(
+                return this->kernel_runner(
                         this->coalesce,
                         coalesce_global_work_size,
                         coalesce_local_work_size,
@@ -397,7 +397,7 @@ namespace sibernetic {
                 static size_t reorder_local_work_size = WG_SIZE;
                 if(log_mode == LOGGING_MODE::FULL)
                     std::cout << "run reorder kernel --> " << dev->name << std::endl;
-                this->kernel_runner(
+                return this->kernel_runner(
                         this->reorder,
                         reorder_global_work_size,
                         reorder_local_work_size,
@@ -416,7 +416,7 @@ namespace sibernetic {
                 static size_t dim_round_up = (((model->get_particles().size() - 1) / WG_SIZE) + 1) * WG_SIZE;
                 if(log_mode == LOGGING_MODE::FULL)
                     std::cout << "run shuffle_particles kernel --> " << dev->name << std::endl;
-                this->kernel_runner(
+                return this->kernel_runner(
                         this->shuffle,
                         dim_round_up,
                         WG_SIZE,

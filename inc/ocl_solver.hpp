@@ -89,8 +89,8 @@ namespace sibernetic {
 					LOGGING_MODE log_mode = LOGGING_MODE::NO
 			):
 				model(m),
-				dev(std::move(d)),
 				device_index(idx),
+				dev(std::move(d)),
 				log_mode(log_mode)
 			{
 				try {
@@ -193,8 +193,6 @@ namespace sibernetic {
 
 		void run(int iter_lim) override {
 			int i = 0;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
 			while(true) {
 				if(iter_lim != -1 && i == iter_lim) {
 					//_debug_();
@@ -204,7 +202,6 @@ namespace sibernetic {
 				//physic();
 				++i;
 			}
-#pragma clang diagnostic pop
 		}
 		void unfreeze() override {
 			is_synchronizing = false;
@@ -375,7 +372,7 @@ namespace sibernetic {
 			int run_init_ext_particles() {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run init_ext_particles --> " << dev->name << std::endl;
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_init_ext_particles,
 						p->total_size(),
 						0,
@@ -387,7 +384,7 @@ namespace sibernetic {
 			int run_hash_particles() {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run hash_particles --> " << dev->name << std::endl;
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_hash_particles,
 						p->total_size(),
 						0,
@@ -406,7 +403,7 @@ namespace sibernetic {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run clear_grid_hash --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_clear_grid_hash,
 						model->get_total_cell_num(),//p.total_cell_count(),
 						0,
@@ -419,7 +416,7 @@ namespace sibernetic {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run fill_particle_cell_hash --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_fill_particle_cell_hash,
 						p->total_size(),
 						0,
@@ -434,7 +431,7 @@ namespace sibernetic {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run neighbour_search --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_neighbour_search,
 						p->total_size(),
 						0,
@@ -463,7 +460,7 @@ namespace sibernetic {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run compute_density --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_compute_density,
 						p->total_size(),
 						0,
@@ -481,7 +478,7 @@ namespace sibernetic {
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run compute_forces_init_pressure --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_compute_forces_init_pressure,
 						p->total_size(),
 						0,
@@ -499,11 +496,11 @@ namespace sibernetic {
 				);
 			}
 
-			void run_predict_positions(){
+			int run_predict_positions(){
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run predict_positions --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_predict_positions,
 						p->total_size(),
 						0,
@@ -518,11 +515,11 @@ namespace sibernetic {
 				);
 			}
 
-			void run_predict_density(){
+			int run_predict_density(){
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run predict_density --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->ker_predict_density,
 						p->total_size(),
 						0,
@@ -536,11 +533,11 @@ namespace sibernetic {
 						p->limit()
 				);
 			}
-			void run_correct_pressure(){
+			int run_correct_pressure(){
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run run_correct_pressure --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->ker_correct_pressure,
 						p->total_size(),
 						0,
@@ -552,11 +549,11 @@ namespace sibernetic {
 						p->limit()
 				);
 			}
-			void run_compute_pressure_force_acceleration(){
+			int run_compute_pressure_force_acceleration(){
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run run_compute_pressure_force_acceleration --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->ker_compute_pressure_force_acceleration,
 						p->total_size(),
 						0,
@@ -572,11 +569,11 @@ namespace sibernetic {
 						p->limit()
 				);
 			}
-			void run_integrate(){
+			int run_integrate(){
 				if(log_mode == LOGGING_MODE::FULL)
 					std::cout << "run run_integrate --> " << dev->name << std::endl;
 
-				this->kernel_runner(
+				return this->kernel_runner(
 						this->k_integrate,
 						p->total_size(),
 						0,
