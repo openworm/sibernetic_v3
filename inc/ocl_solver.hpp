@@ -55,7 +55,6 @@
 #include "particle.h"
 #include "sph_model.hpp"
 #include "util/error.h"
-#include "util/json.hpp"
 #include "device.h"
 #include <fstream>
 #include <iostream>
@@ -151,9 +150,9 @@ namespace sibernetic {
 			}
 
 			void neighbour_search() override {
-				run_init_ext_particles();
 				run_hash_particles();
 				sync();
+				run_init_ext_particles();
 				run_clear_grid_hash();
 				run_fill_particle_cell_hash();
 				run_neighbour_search();
@@ -175,12 +174,13 @@ namespace sibernetic {
 
 			void sync() override {
 				is_synchronizing = true;
-				std::cout << "start " <<  p->start << " end " <<  p->end << " size = " << p->size() << " offset = " << p->offset() * sizeof(particle<T>) << " len of buff host " << model->get_particles().size() << std::endl;
+				//std::cout << "start " <<  p->start << " end " <<  p->end << " size = " << p->size() << " offset = " << p->offset() * sizeof(particle<T>) << " len of buff host " << model->get_particles().size() << std::endl;
 				copy_buffer_from_device(
-						&(model->get_particles()[p->start]),
-						b_particles,
-						p->size() * sizeof(particle<T>),
-						p->offset() * sizeof(particle<T>));
+					&(model->get_particles()[p->start]),
+					b_particles,
+					p->size() * sizeof(particle<T>),
+					p->offset() * sizeof(particle<T>)
+				);
 				if(model->set_ready()){
 					model->sync();
 				} else {
@@ -201,7 +201,7 @@ namespace sibernetic {
 					break;
 				}
 				neighbour_search();
-				physic();
+				//physic();
 				++i;
 			}
 #pragma clang diagnostic pop
@@ -242,17 +242,14 @@ namespace sibernetic {
 			cl::Program program;
 
 			void init_buffers() {
-				auto p_buff_size = create_ocl_buffer("particles", b_particles, CL_MEM_READ_WRITE,
-				                  p->total_size() * sizeof(particle<T>));
-				auto ext_p_buff_size = create_ocl_buffer("ext_particles", b_ext_particles, CL_MEM_READ_WRITE,
-				                  p->total_size() * sizeof(extend_particle));
-				auto b_grid_buff_size = create_ocl_buffer("b_grid_cell_id_list", b_grid_cell_id_list, CL_MEM_READ_WRITE,
-				                  model->get_total_cell_num() * sizeof(int));
+				create_ocl_buffer("particles", b_particles, CL_MEM_READ_WRITE,
+								p->total_size() * sizeof(particle<T>));
+				create_ocl_buffer("ext_particles", b_ext_particles, CL_MEM_READ_WRITE,
+								p->total_size() * sizeof(extend_particle));
+				create_ocl_buffer("b_grid_cell_id_list", b_grid_cell_id_list, CL_MEM_READ_WRITE,
+								model->get_total_cell_num() * sizeof(int));
 				copy_buffer_to_device((void *) &(model->get_particles()[p->ghost_start]),
 				                      b_particles, 0, p->total_size() * sizeof(particle<T>));
-				auto total_device_alloc_memory = (p_buff_size + ext_p_buff_size + b_grid_buff_size) / (1024 * 1024);
-				auto ram_memory = (p->total_size() * sizeof(particle<T>) + p->total_size() * sizeof(extend_particle) + model->get_total_cell_num() * sizeof(int))/(1024 * 1024);
-				//std::cout << "Size of object on RAM " << ram_memory << "MB.Size of object on DEVICE RAM " << total_device_alloc_memory  << "MB."<< std::endl;
 			}
 
 			void init_kernels() {
@@ -360,7 +357,11 @@ namespace sibernetic {
 			void copy_buffer_from_device(void *host_b, const cl::Buffer &ocl_b,
 			                             const size_t size, size_t offset) {
 				// Actualy we should check  size and type
-				//std::cout << "size = " << size << " offset = " << offset << std::endl;
+				std::cout << "Host ptr " << host_b << " size = " << size << " offset = " << offset << std::endl;
+				std::cout << "clMathOp b_particles ptr: " <<
+					" size: " << ocl_b.getInfo<CL_MEM_SIZE>() <<
+					" type: " << ocl_b.getInfo<CL_MEM_TYPE>() <<
+					" flags: " << ocl_b.getInfo<CL_MEM_FLAGS>() << std::endl;
 				int err = queue.enqueueReadBuffer(ocl_b, CL_TRUE, offset, size, host_b);
 
 				if (err != CL_SUCCESS) {
@@ -373,7 +374,7 @@ namespace sibernetic {
 
 			int run_init_ext_particles() {
 				if(log_mode == LOGGING_MODE::FULL)
-					std::cout << "run init_ext_particles --> }{UY " << log_mode << LOGGING_MODE::FULL << LOGGING_MODE::NO << dev->name << std::endl;
+					std::cout << "run init_ext_particles --> " << dev->name << std::endl;
 				this->kernel_runner(
 						this->k_init_ext_particles,
 						p->total_size(),

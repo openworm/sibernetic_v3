@@ -95,11 +95,10 @@ namespace sibernetic {
 
 					if(!dev_q.empty() && p_sort) {
 					    std::cout << "************* DEVICE 4 SORT *************" << std::endl;
-                                            dev_q.top()->show_info();
+                        dev_q.top()->show_info();
                         std::cout << "*******************************************" << std::endl;
 
-					    std::shared_ptr<ocl_radix_sort_solver<T>> sort_solver(
-					            new ocl_radix_sort_solver<T>(model, dev_q.top(), device_index+1));
+					    std::shared_ptr<ocl_radix_sort_solver<T>> sort_solver(new ocl_radix_sort_solver<T>(model, dev_q.top(), device_index+1));
 					    sort_solver->init_model();
 					    model->set_sort_solver(sort_solver);
 					}

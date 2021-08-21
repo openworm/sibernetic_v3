@@ -43,7 +43,7 @@ namespace solver {
 using sibernetic::model::partition;
 class i_sort_solver {
 public:
-  virtual ~i_sort_solver() = default;;
+  virtual ~i_sort_solver() = default;
   virtual void sort() = 0;
   virtual std::shared_ptr<device> get_device() = 0; // TODO extract device interface later
 };
