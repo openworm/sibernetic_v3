@@ -65,7 +65,7 @@ namespace sibernetic {
 
 		public:
 			sph_model(const std::string &config_file, abstract_reader<T> *serializer = new json_reader<T>())
-					: serializer(serializer), ready_to_sync(0), iteration(0) {
+					: serializer(serializer), iteration(0), ready_to_sync(0) {
 				config = {
 					{"particles",                   T()},
 					{"x_max",                       T()},

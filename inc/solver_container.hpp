@@ -70,7 +70,6 @@ namespace sibernetic {
 				try {
 					p_q dev_q = get_dev_queue();
 					size_t device_index = 0;
-					size_t total_dev_count = dev_q.size();
 					while (!dev_q.empty()) {
 						try {
 							std::shared_ptr<ocl_solver<T>> solver(
