@@ -176,7 +176,7 @@ __kernel void k_hash_particles(
 							int LIMIT
 							)
 {
-	int id = get_global_id( 0 );
+	int id = get_global_id(0);
 	if(id >= PARTICLE_COUNT){
 		return;
 	}
@@ -187,7 +187,7 @@ __kernel void k_hash_particles(
 //        printf("\n===== cellFactors_: %d %d %d %d \n", cellFactors_.x, cellFactors_.y, cellFactors_.z, cellFactors_.w );
 //        printf("\n===== pos: %f %f %f %f \n", particles[ id ].pos.x, particles[ id ].pos.y, particles[ id ].pos.z, particles[ id ].pos.w );
 //	}
-	particles[ id ].cell_id = cellId_;
+	particles[id].cell_id = cellId_;
 }
 
 /** Caculation spatial hash cellId for every particle
@@ -203,9 +203,9 @@ int4 cellFactors(
 {
     //xmin, ymin, zmin
     int4 result;
-    result.x = (int)( position.x *  hashGridCellSizeInv );
-    result.y = (int)( position.y *  hashGridCellSizeInv );
-    result.z = (int)( position.z *  hashGridCellSizeInv );
+    result.x = (int)(position.x *  hashGridCellSizeInv);
+    result.y = (int)(position.y *  hashGridCellSizeInv);
+    result.z = (int)(position.z *  hashGridCellSizeInv);
     return result;
 }
 
@@ -277,10 +277,7 @@ int searchCell(
 	return newCellId;
 }
 
-int getMaxIndex(
-		float *d_array
-)
-{
+int getMaxIndex(float *d_array){
 	int result;
 	float max_d = -1.f;
 	for(int i=0; i<NEIGHBOUR_COUNT; ++i){
@@ -309,8 +306,7 @@ int searchForNeighbors_b(
 		int *found_count,
 		int grid_offset,
 		int PARTICLE_COUNT
-)
-{	
+){	
 	int baseParticleId = b_grid_cell_id_list[ searchCell_ ];
 	if(baseParticleId == -1){
 		//printf("\n---------- %d ---------- %d\n", searchCell_, grid_offset);
@@ -365,7 +361,7 @@ __kernel void k_neighbour_search(
 		int OFFSET,
 		int LIMIT
 ){
-	int id = get_global_id( 0 );
+	int id = get_global_id(0);
 	// if(id == 0){
 	// 	printf("\nOFFSET %d LIMIT %d PARTICLE_COUNT %d\n", OFFSET, LIMIT, PARTICLE_COUNT);
 	// }
@@ -408,7 +404,7 @@ __kernel void k_neighbour_search(
 	lo = isless(p, h + cf);
 	int p_id = id;
 	int4 delta;
-    int4 one = (int4)( 1, 1, 1, 1 );
+    int4 one = (int4)( 1, 1, 1, 1);
 	delta = one + 2 * lo;
 	int last_farthest = 0;
 	

@@ -114,38 +114,45 @@ namespace sibernetic {
 
 			void _debug_(){
 				std::vector<extend_particle> neighbour_map(p->size());
-				copy_buffer_from_device(&(neighbour_map[0]), b_ext_particles, p->size() * sizeof(extend_particle), 0);
+				//copy_buffer_from_device(&(neighbour_map[0]), b_ext_particles, p->size() * sizeof(extend_particle), 0);
 				copy_buffer_from_device(&(model->get_particles()[0]), b_particles, p->size() * sizeof(particle<T>), 0);
-				std::string big_s = "[";
-				for(auto p: neighbour_map){
 
-					big_s += "{\"particle\": ";
-					big_s += model->get_particle(p.p_id).jsonify();
-					big_s += ",";
-//					big_s += "\"particle_id\": ";
-//					big_s += std::to_string(p.p_id);
-//					big_s += ",";
-					big_s += "\"n_list\":[";
-					for(int i=0;i<NEIGHBOUR_COUNT;++i) {
-						big_s += "{";
-						big_s += "\"n_particle_id\": ";
-						big_s += std::to_string(p.neighbour_list[i][0]);
-						big_s += ",";
-						big_s += "\"distance\": ";
-						big_s += std::to_string(p.neighbour_list[i][1]);
-						big_s += "}";
-						if(i != NEIGHBOUR_COUNT - 1)
-							big_s += ",";
-					}
-					big_s += "]";
-					big_s += "}";
-					//break;
-					if(p.p_id != neighbour_map.back().p_id)
-						big_s += ",";
+				std::stringstream big_s;
+				big_s << "bbox\n";
+				big_s << model->get_config()["x_max"];
+				big_s << "\n";
+				big_s << model->get_config()["x_min"];
+				big_s << "\n";
+				big_s << model->get_config()["y_max"];
+				big_s << "\n";
+				big_s << model->get_config()["y_min"];
+				big_s << "\n";
+				big_s << model->get_config()["z_max"];
+				big_s << "\n";
+				big_s << model->get_config()["z_min"];
+				big_s << "\n";
+				big_s << "position\n";
+				for(auto p: model->get_particles()) {
+					big_s << p.pos[0];
+					big_s << "\t";
+					big_s << p.pos[1];
+					big_s << "\t";
+					big_s << p.pos[2];
+					big_s << "\t";
+					big_s << p.pos[3];
+					big_s << "\t";
+					big_s << p.vel[0];
+					big_s << "\t";
+					big_s << p.vel[1];
+					big_s << "\t";
+					big_s << p.vel[2];
+					big_s << "\t";
+					big_s << p.vel[3];
+					big_s << "\n";
 				}
-				big_s += "]";
-				std::ofstream debug_file("debug");
-				debug_file << big_s;
+				
+				std::ofstream debug_file("debug.out");
+				debug_file << big_s.str();
 				debug_file.close();
 			}
 
@@ -174,7 +181,6 @@ namespace sibernetic {
 
 			void sync() override {
 				is_synchronizing = true;
-				//std::cout << "start " <<  p->start << " end " <<  p->end << " size = " << p->size() << " offset = " << p->offset() * sizeof(particle<T>) << " len of buff host " << model->get_particles().size() << std::endl;
 				copy_buffer_from_device(
 					&(model->get_particles()[p->start]),
 					b_particles,
@@ -188,18 +194,17 @@ namespace sibernetic {
 				}
 
 				init_buffers();
-				//copy_buffer_to_device((void *) &(model->get_particles()[p->ghost_start]), b_particles, 0, p->total_size() * sizeof(particle<T>));
 			}
 
 		void run(int iter_lim) override {
 			int i = 0;
 			while(true) {
-				if(iter_lim != -1 && i == iter_lim) {
-					//_debug_();
-					break;
+				if(i == 13) {
+					_debug_();
+					//break;
 				}
 				neighbour_search();
-				//physic();
+				physic();
 				++i;
 			}
 		}
