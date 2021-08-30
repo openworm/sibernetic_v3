@@ -6,6 +6,7 @@
 #define PROJECT_PARTITION_H
 
 #include <iostream>
+#include <sstream>
 
 namespace sibernetic{
     namespace model{
@@ -61,6 +62,25 @@ namespace sibernetic{
                 << " offset - " << offset() 
                 << " limit - " << limit()
                 << std::endl;
+            }
+        std::string get_info() {
+                std::stringstream ss;
+                ss << "start - " << start 
+                << " end - " << end 
+                << " ghost_start - "  << ghost_start 
+                << " ghost_end - " << ghost_end 
+                << " start_cell_id - " << start_cell_id 
+                << " end_cell_id - " << end_cell_id 
+                << " start_ghost_cell_id - " <<  start_ghost_cell_id 
+                << " end_ghost_cell_id - " << end_ghost_cell_id 
+                << " size - " << size() 
+                << " total_size - " << total_size() 
+                << " cell_count - " << cell_count()
+                << " total_cell_count - " << total_cell_count()
+                << " offset - " << offset() 
+                << " limit - " << limit()
+                << std::endl;
+                return ss.str();
             }
         };
     }
