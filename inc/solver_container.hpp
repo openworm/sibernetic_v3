@@ -49,17 +49,17 @@ namespace sibernetic {
 				return s;
 			}
 
-			void run(int iter_lim) {
+			void run(int iter_lim, float time_lim) {
 				std::vector<std::thread> t_pool;
 				std::for_each(
 						_solvers.begin(), _solvers.end(), [&, this](std::shared_ptr<i_solver> &s) {
-							t_pool.emplace_back(std::thread(solver_container::run_solver, std::ref(s), iter_lim));
+							t_pool.emplace_back(std::thread(solver_container::run_solver, std::ref(s), iter_lim, time_lim));
 						});
 				std::for_each(t_pool.begin(), t_pool.end(), [](std::thread &t) { t.join(); });
 			}
 
-			static void run_solver(std::shared_ptr<i_solver> &s, int iter_lim) {
-				s->run(iter_lim);
+			static void run_solver(std::shared_ptr<i_solver> &s, int iter_lim, float time_lim) {
+				s->run(iter_lim, time_lim);
 			}
 			std::vector<std::shared_ptr<i_solver>>* solvers(){
 				return &_solvers;

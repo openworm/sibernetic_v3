@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   if (prsr.check_arg("-f")) {
     model_name = prsr.get_arg_value("-f");
   } else {
-    model_name = "config/model.txt";
+    model_name = "config/data/1.txt";
   }
   if (prsr.check_arg("--multi_dev")) {
   	auto v = prsr.get_arg_value("--multi_dev");
@@ -72,6 +72,10 @@ int main(int argc, char **argv) {
     iter_lim = std::atoi(prsr.get_arg_value("-iter_lim").c_str());
   }
 
+  float time_lim = -1;
+  if (prsr.check_arg("-time_lim")) {
+    time_lim = std::atof(prsr.get_arg_value("-time_lim").c_str());
+  }
   try {
     abstract_reader<float> * reader = nullptr;
     if (prsr.check_arg("--json")) {
@@ -89,7 +93,7 @@ int main(int argc, char **argv) {
             parallel_sort
     );
     //model->sort();
-    s_con.run(iter_lim);
+    s_con.run(iter_lim, time_lim);
   } catch (sibernetic::parser_error &e) {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;

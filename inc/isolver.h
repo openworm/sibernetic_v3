@@ -49,7 +49,7 @@ public:
   virtual void neighbour_search() = 0;
   virtual void physic() = 0;
   virtual void init_model(partition *) = 0;
-  virtual void run(int) = 0;
+  virtual void run(int, float) = 0;
   virtual void unfreeze() = 0;
   virtual std::shared_ptr<device> get_device() = 0; // TODO extract device interface later
 private:

@@ -196,16 +196,21 @@ namespace sibernetic {
 				init_buffers();
 			}
 
-		void run(int iter_lim) override {
-			int i = 0;
+		void run(int iter_lim, float time_limit) override {
+			int iteration = 0;
 			while(true) {
-				if(i == 4999) {
+				if(iteration == iter_lim) {
 					_debug_();
-					//break;
+					break;
+				} else {
+					if(model->get_config()["time_step"] * iteration >= time_limit) {
+						_debug_();
+						break;
+					}
 				}
 				neighbour_search();
 				physic();
-				++i;
+				++iteration;
 			}
 		}
 		void unfreeze() override {
@@ -359,11 +364,14 @@ namespace sibernetic {
 			void copy_buffer_from_device(void *host_b, const cl::Buffer &ocl_b,
 			                             const size_t size, size_t offset) {
 				// Actualy we should check  size and type
-				std::cout << "Host ptr " << host_b << " size = " << size << " offset = " << offset << std::endl;
-				std::cout << "clMathOp b_particles ptr: " <<
+				if(log_mode == LOGGING_MODE::FULL) {
+					std::cout << "Host ptr " << host_b << " size = " << size << " offset = " << offset << std::endl;
+					std::cout << "clMathOp b_particles ptr: " <<
 					" size: " << ocl_b.getInfo<CL_MEM_SIZE>() <<
 					" type: " << ocl_b.getInfo<CL_MEM_TYPE>() <<
 					" flags: " << ocl_b.getInfo<CL_MEM_FLAGS>() << std::endl;
+				}
+				
 				int err = queue.enqueueReadBuffer(ocl_b, CL_TRUE, offset, size, host_b);
 
 				if (err != CL_SUCCESS) {
