@@ -36,6 +36,7 @@
 #include "util/custom_reader.hpp"
 #include <iostream>
 #include <thread>
+#include <time.h>
 
 using sibernetic::model::sph_model;
 using sibernetic::solver::solver_container;
@@ -93,7 +94,12 @@ int main(int argc, char **argv) {
             parallel_sort
     );
     //model->sort();
+    timespec t1, t2;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
     s_con.run(iter_lim, time_lim);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+    auto delta = ((t2.tv_sec - t1.tv_sec) * 1000000 + (t2.tv_nsec - t1.tv_nsec) / 1000 ) / 1000000.0 ;
+    std::cout << "Simulation has run " << delta << " s" << std::endl;
   } catch (sibernetic::parser_error &e) {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
