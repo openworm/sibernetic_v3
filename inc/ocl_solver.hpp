@@ -83,10 +83,11 @@ namespace sibernetic {
 
 		public:
 			ocl_solver(
-					model_ptr &m,
-					shared_ptr<device> d,
-					size_t idx,
-					LOGGING_MODE log_mode = LOGGING_MODE::NO
+				model_ptr &m,
+				shared_ptr<device> d,
+				size_t idx,
+				std::exception_ptr &ex,
+				LOGGING_MODE log_mode = LOGGING_MODE::NO
 			):
 				model(m),
 				device_index(idx),
@@ -95,6 +96,7 @@ namespace sibernetic {
 			{
 				try {
 					this->initialize_ocl();
+					this->ex = ex;
 				} catch (ocl_error &ex) {
 					throw;
 				}
@@ -111,50 +113,6 @@ namespace sibernetic {
 			}
 
 			~ocl_solver() override = default;
-
-			void _debug_(){
-				std::vector<extend_particle> neighbour_map(p->size());
-				//copy_buffer_from_device(&(neighbour_map[0]), b_ext_particles, p->size() * sizeof(extend_particle), 0);
-				copy_buffer_from_device(&(model->get_particles()[0]), b_particles, p->size() * sizeof(particle<T>), 0);
-
-				std::stringstream big_s;
-				big_s << "bbox\n";
-				big_s << model->get_config()["x_max"];
-				big_s << "\n";
-				big_s << model->get_config()["x_min"];
-				big_s << "\n";
-				big_s << model->get_config()["y_max"];
-				big_s << "\n";
-				big_s << model->get_config()["y_min"];
-				big_s << "\n";
-				big_s << model->get_config()["z_max"];
-				big_s << "\n";
-				big_s << model->get_config()["z_min"];
-				big_s << "\n";
-				big_s << "position\n";
-				for(auto p: model->get_particles()) {
-					big_s << p.pos[0];
-					big_s << "\t";
-					big_s << p.pos[1];
-					big_s << "\t";
-					big_s << p.pos[2];
-					big_s << "\t";
-					big_s << p.pos[3];
-					big_s << "\t";
-					big_s << p.vel[0];
-					big_s << "\t";
-					big_s << p.vel[1];
-					big_s << "\t";
-					big_s << p.vel[2];
-					big_s << "\t";
-					big_s << p.vel[3];
-					big_s << "\n";
-				}
-				
-				std::ofstream debug_file("debug.out");
-				debug_file << big_s.str();
-				debug_file.close();
-			}
 
 			void neighbour_search() override {
 				run_hash_particles();
@@ -199,24 +157,34 @@ namespace sibernetic {
 		void run(int iter_lim, float time_limit) override {
 			int iteration = 0;
 			while(true) {
+				if(stop_flag) {
+					break;
+				}
 				if(iteration == iter_lim) {
-					_debug_();
 					break;
 				} else {
 					if(model->get_config()["time_step"] * iteration >= time_limit) {
-						_debug_();
 						break;
 					}
 				}
-				neighbour_search();
-				physic();
-				++iteration;
+				try {
+					neighbour_search();
+					physic();
+					++iteration;
+				} catch (...) {
+					stop_flag = true;
+					ex = std::current_exception();
+					break;
+				}
 			}
 		}
 		void unfreeze() override {
 			is_synchronizing = false;
 		}
 		private:
+			static bool stop_flag;
+
+			std::exception_ptr ex;
 			std::atomic<bool> is_synchronizing;
 			model_ptr model;
 			int prev_part_size;
@@ -638,6 +606,7 @@ namespace sibernetic {
 			}
 
 		};
+		template<class T> bool ocl_solver<T>::stop_flag = false;
 	} // namespace solver
 } // namespace sibernetic
 #endif // OCLSOLVER_HPP

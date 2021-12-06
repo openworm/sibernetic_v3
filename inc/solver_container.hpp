@@ -13,6 +13,7 @@
 #include <vector>
 #include <thread>
 #include <cmath>
+#include <exception>
 
 namespace sibernetic {
 	namespace solver {
@@ -43,7 +44,7 @@ namespace sibernetic {
 					size_t dev_count = 0,
 			        SOLVER_TYPE s_t = OCL,
 			        bool p_sort = false
-			        ) {
+			    ) {
 				static solver_container s(model, mode, s_t, dev_count, p_sort);
 				model->set_solver_container(s.solvers());
 				return s;
@@ -52,10 +53,25 @@ namespace sibernetic {
 			void run(int iter_lim, float time_lim) {
 				std::vector<std::thread> t_pool;
 				std::for_each(
-						_solvers.begin(), _solvers.end(), [&, this](std::shared_ptr<i_solver> &s) {
-							t_pool.emplace_back(std::thread(solver_container::run_solver, std::ref(s), iter_lim, time_lim));
-						});
+					_solvers.begin(), 
+					_solvers.end(), 
+					[&, this](std::shared_ptr<i_solver> &s) {
+						t_pool.emplace_back(std::thread(solver_container::run_solver, std::ref(s), iter_lim, time_lim));
+					}
+				);
 				std::for_each(t_pool.begin(), t_pool.end(), [](std::thread &t) { t.join(); });
+
+				try{
+					for(auto ex: this->solver_errors){
+						if(ex != nullptr){
+							std::rethrow_exception(ex);
+						}
+					}
+				} catch(...) {
+					std::cout << "when runnint ocl solver some problem was occured " << std::endl;
+					_debug_();
+					return;
+				}
 			}
 
 			static void run_solver(std::shared_ptr<i_solver> &s, int iter_lim, float time_lim) {
@@ -72,8 +88,9 @@ namespace sibernetic {
 					size_t device_index = 0;
 					while (!dev_q.empty()) {
 						try {
-							std::shared_ptr<ocl_solver<T>> solver(
-									new ocl_solver<T>(model, dev_q.top(), device_index));
+							std::exception_ptr ex = nullptr;
+							this->solver_errors.push_back(ex);
+							std::shared_ptr<ocl_solver<T>> solver(new ocl_solver<T>(model, dev_q.top(), device_index, ex));
 							_solvers.push_back(solver);
 							std::cout << "************* DEVICE For Phys *************" << std::endl;
 							dev_q.top()->show_info();
@@ -118,6 +135,7 @@ namespace sibernetic {
 					} else {
 						throw ocl_error("No OpenCL devices were initialized.");
 					}
+					this->md = model;
 				} catch (sibernetic::ocl_error &err) {
 					throw;
 				}
@@ -148,8 +166,51 @@ namespace sibernetic {
 
 			~solver_container() = default;
             std::vector<float> weights;
+			model_ptr md;
 			std::vector<std::shared_ptr<i_solver>> _solvers;
             std::shared_ptr<i_sort_solver> sort_solver;
+			std::vector<std::exception_ptr> solver_errors;
+			void _debug_(){
+				std::vector<extend_particle> neighbour_map(md->size());
+				
+				std::stringstream big_s;
+				big_s << "bbox\n";
+				big_s << md->get_config()["x_max"];
+				big_s << "\n";
+				big_s << md->get_config()["x_min"];
+				big_s << "\n";
+				big_s << md->get_config()["y_max"];
+				big_s << "\n";
+				big_s << md->get_config()["y_min"];
+				big_s << "\n";
+				big_s << md->get_config()["z_max"];
+				big_s << "\n";
+				big_s << md->get_config()["z_min"];
+				big_s << "\n";
+				big_s << "position\n";
+				for(auto p: md->get_particles()) {
+					big_s << p.pos[0];
+					big_s << "\t";
+					big_s << p.pos[1];
+					big_s << "\t";
+					big_s << p.pos[2];
+					big_s << "\t";
+					big_s << p.pos[3];
+					big_s << "\t";
+					big_s << p.vel[0];
+					big_s << "\t";
+					big_s << p.vel[1];
+					big_s << "\t";
+					big_s << p.vel[2];
+					big_s << "\t";
+					big_s << p.vel[3];
+					big_s << "\n";
+				}
+				
+				std::ofstream debug_file("debug.out");
+				debug_file << big_s.str();
+				debug_file.close();
+			}
 		};
 	} // namespace solver
 } // namespace sibernetic
