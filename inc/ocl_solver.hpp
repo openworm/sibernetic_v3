@@ -87,6 +87,7 @@ namespace sibernetic {
 				shared_ptr<device> d,
 				size_t idx,
 				bool *faild_flag,
+				std::string *log,
 				LOGGING_MODE log_mode = LOGGING_MODE::NO
 			):
 				model(m),
@@ -97,6 +98,7 @@ namespace sibernetic {
 				try {
 					this->initialize_ocl();
 					this->finished_with_error = faild_flag;
+					this->log = log;
 				} catch (ocl_error &ex) {
 					throw;
 				}
@@ -174,11 +176,13 @@ namespace sibernetic {
 				} catch (ocl_error &err) {
 					stop_flag = true;
 					*finished_with_error = true;
-					std::cout << "=====================[ERROR]====================" << std::endl;
-					std::cout << "In solver " << device_index << " Err is occured " << err.what() << ". Dev name " << msg << std::endl;
-					std::cout << "Solver settings prev_part_size " << prev_part_size << " prev_start " << prev_start << " prev_end " << prev_end << std::endl;
-					std::cout << "Partition " << p->get_info() << std::endl;
-					std::cout << "================================================" << std::endl;
+					std::stringstream ss;
+					ss << "=====================[ERROR]====================" << std::endl;
+					ss << "In solver " << device_index << " Err is occured " << err.what() << ". Dev name " << msg << std::endl;
+					ss << "Solver settings prev_part_size " << prev_part_size << " prev_start " << prev_start << " prev_end " << prev_end << std::endl;
+					ss << "Partition " << p->get_info() << std::endl;
+					ss << "================================================" << std::endl;
+					*log = ss.str();
 					break;
 				}
 			}
@@ -190,6 +194,7 @@ namespace sibernetic {
 			static bool stop_flag;
 
 			bool * finished_with_error;
+			std::string *log;
 			std::atomic<bool> is_synchronizing;
 			model_ptr model;
 			int prev_part_size;
@@ -247,7 +252,7 @@ namespace sibernetic {
 				create_ocl_kernel("ker_compute_pressure_force_acceleration", ker_compute_pressure_force_acceleration);
 				create_ocl_kernel("k_integrate", k_integrate);
 			}
-
+ 
 			void init_ext_particles() override {}
 
 			void initialize_ocl() {

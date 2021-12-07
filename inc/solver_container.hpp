@@ -62,6 +62,9 @@ namespace sibernetic {
 				std::for_each(t_pool.begin(), t_pool.end(), [](std::thread &t) { t.join(); });
 				if(finished_with_error){
 					std::cout << "when runnint ocl solver some problem was occured store fail config into debug.out file" << std::endl;
+					for(auto log: logs){
+						std::cout << *log << std::endl;
+					}
 					_debug_();
 					return;
 				}
@@ -81,7 +84,9 @@ namespace sibernetic {
 					size_t device_index = 0;
 					while (!dev_q.empty()) {
 						try {
-							std::shared_ptr<ocl_solver<T>> solver(new ocl_solver<T>(model, dev_q.top(), device_index, &finished_with_error));
+							std::string * log = new(std::string);
+							logs.push_back(log);
+							std::shared_ptr<ocl_solver<T>> solver(new ocl_solver<T>(model, dev_q.top(), device_index, &finished_with_error, log));
 							_solvers.push_back(solver);
 							std::cout << "************* DEVICE For Phys *************" << std::endl;
 							dev_q.top()->show_info();
@@ -161,6 +166,7 @@ namespace sibernetic {
 			std::vector<std::shared_ptr<i_solver>> _solvers;
             std::shared_ptr<i_sort_solver> sort_solver;
 			bool finished_with_error;
+			std::vector<std::string*> logs;
 			void _debug_(){
 				std::vector<extend_particle> neighbour_map(md->size());
 				

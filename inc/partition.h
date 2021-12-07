@@ -65,21 +65,20 @@ namespace sibernetic{
             }
         std::string get_info() {
                 std::stringstream ss;
-                ss << "start - " << start 
-                << " end - " << end 
-                << " ghost_start - "  << ghost_start 
-                << " ghost_end - " << ghost_end 
-                << " start_cell_id - " << start_cell_id 
-                << " end_cell_id - " << end_cell_id 
-                << " start_ghost_cell_id - " <<  start_ghost_cell_id 
-                << " end_ghost_cell_id - " << end_ghost_cell_id 
-                << " size - " << size() 
-                << " total_size - " << total_size() 
-                << " cell_count - " << cell_count()
-                << " total_cell_count - " << total_cell_count()
-                << " offset - " << offset() 
-                << " limit - " << limit()
-                << std::endl;
+                ss << "start - " << start << std::endl;
+                ss << " end - " << end  << std::endl;
+                ss << " ghost_start - "  << ghost_start  << std::endl;
+                ss << " ghost_end - " << ghost_end  << std::endl;
+                ss << " start_cell_id - " << start_cell_id  << std::endl;
+                ss << " end_cell_id - " << end_cell_id  << std::endl;
+                ss << " start_ghost_cell_id - " <<  start_ghost_cell_id  << std::endl;
+                ss << " end_ghost_cell_id - " << end_ghost_cell_id  << std::endl;
+                ss << " size - " << size()  << std::endl;
+                ss << " total_size - " << total_size()  << std::endl;
+                ss << " cell_count - " << cell_count() << std::endl;
+                ss << " total_cell_count - " << total_cell_count() << std::endl;
+                ss << " offset - " << offset()  << std::endl;
+                ss << " limit - " << limit() << std::endl;
                 return ss.str();
             }
         };
