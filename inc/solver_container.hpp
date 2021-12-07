@@ -60,15 +60,8 @@ namespace sibernetic {
 					}
 				);
 				std::for_each(t_pool.begin(), t_pool.end(), [](std::thread &t) { t.join(); });
-
-				try{
-					for(auto ex: this->solver_errors){
-						if(ex != nullptr){
-							std::rethrow_exception(ex);
-						}
-					}
-				} catch(...) {
-					std::cout << "when runnint ocl solver some problem was occured " << std::endl;
+				if(finished_with_error){
+					std::cout << "when runnint ocl solver some problem was occured store fail config into debug.out file" << std::endl;
 					_debug_();
 					return;
 				}
@@ -88,9 +81,7 @@ namespace sibernetic {
 					size_t device_index = 0;
 					while (!dev_q.empty()) {
 						try {
-							std::exception_ptr ex = nullptr;
-							this->solver_errors.push_back(ex);
-							std::shared_ptr<ocl_solver<T>> solver(new ocl_solver<T>(model, dev_q.top(), device_index, ex));
+							std::shared_ptr<ocl_solver<T>> solver(new ocl_solver<T>(model, dev_q.top(), device_index, &finished_with_error));
 							_solvers.push_back(solver);
 							std::cout << "************* DEVICE For Phys *************" << std::endl;
 							dev_q.top()->show_info();
@@ -169,7 +160,7 @@ namespace sibernetic {
 			model_ptr md;
 			std::vector<std::shared_ptr<i_solver>> _solvers;
             std::shared_ptr<i_sort_solver> sort_solver;
-			std::vector<std::exception_ptr> solver_errors;
+			bool finished_with_error;
 			void _debug_(){
 				std::vector<extend_particle> neighbour_map(md->size());
 				

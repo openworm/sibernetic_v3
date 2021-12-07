@@ -86,7 +86,7 @@ namespace sibernetic {
 				model_ptr &m,
 				shared_ptr<device> d,
 				size_t idx,
-				std::exception_ptr &ex,
+				bool *faild_flag,
 				LOGGING_MODE log_mode = LOGGING_MODE::NO
 			):
 				model(m),
@@ -96,7 +96,7 @@ namespace sibernetic {
 			{
 				try {
 					this->initialize_ocl();
-					this->ex = ex;
+					this->finished_with_error = faild_flag;
 				} catch (ocl_error &ex) {
 					throw;
 				}
@@ -171,9 +171,14 @@ namespace sibernetic {
 					neighbour_search();
 					physic();
 					++iteration;
-				} catch (...) {
+				} catch (ocl_error &err) {
 					stop_flag = true;
-					ex = std::current_exception();
+					*finished_with_error = true;
+					std::cout << "=====================[ERROR]====================" << std::endl;
+					std::cout << "In solver " << device_index << " Err is occured " << err.what() << ". Dev name " << msg << std::endl;
+					std::cout << "Solver settings prev_part_size " << prev_part_size << " prev_start " << prev_start << " prev_end " << prev_end << std::endl;
+					std::cout << "Partition " << p->get_info() << std::endl;
+					std::cout << "================================================" << std::endl;
 					break;
 				}
 			}
@@ -184,7 +189,7 @@ namespace sibernetic {
 		private:
 			static bool stop_flag;
 
-			std::exception_ptr ex;
+			bool * finished_with_error;
 			std::atomic<bool> is_synchronizing;
 			model_ptr model;
 			int prev_part_size;
