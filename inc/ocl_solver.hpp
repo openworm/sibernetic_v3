@@ -160,6 +160,7 @@ namespace sibernetic {
 			int iteration = 0;
 			while(true) {
 				if(stop_flag) {
+					*log = _debug();
 					break;
 				}
 				if(iteration == iter_lim) {
@@ -178,14 +179,26 @@ namespace sibernetic {
 					*finished_with_error = true;
 					std::stringstream ss;
 					ss << "=====================[ERROR]====================" << std::endl;
-					ss << "In solver " << device_index << " Err is occured " << err.what() << ". Dev name " << msg << std::endl;
-					ss << "Solver settings prev_part_size " << prev_part_size << " prev_start " << prev_start << " prev_end " << prev_end << std::endl;
-					ss << "Partition " << p->get_info() << std::endl;
+					ss << "Err is occured " << err.what() << std::endl;
+					ss << _debug();
 					ss << "================================================" << std::endl;
 					*log = ss.str();
 					break;
 				}
 			}
+		}
+		std::string _debug() {
+			std::stringstream ss;
+			ss << "=====================[DEBUG]====================" << std::endl;
+			ss << "In solver " << device_index << ". Dev name " << msg << std::endl;
+			ss << "Solver settings:" << std::endl;
+			ss << "prev_part_size=" << prev_part_size << std::endl;
+			ss << "prev_start=" << prev_start << std::endl; 
+			ss << "prev_end=" << prev_end << std::endl;
+			ss << "Partition:" << std::endl;
+			ss << p->get_info() << std::endl;
+			ss << "================================================" << std::endl;
+			return ss.str();
 		}
 		void unfreeze() override {
 			is_synchronizing = false;
@@ -197,9 +210,9 @@ namespace sibernetic {
 			std::string *log;
 			std::atomic<bool> is_synchronizing;
 			model_ptr model;
-			int prev_part_size;
-			int prev_start;
-			int prev_end;
+			size_t prev_part_size;
+			size_t prev_start;
+			size_t prev_end;
 			size_t device_index;
 			partition* p;
 			shared_ptr<device> dev;
